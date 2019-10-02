@@ -10,9 +10,9 @@ ToDo
 
 ## Difficulties
 
-- Easy
-- Medium
-- Hard
-- Hacker (AI takes over)
-- Why (hardest ever version)
-- Anti-Hacker (Intentionally ignore some keystrokes, to aggravate your friends)
+- [x] Easy
+- [x] Medium
+- [x] Hard
+- [ ] Hacker (AI takes over)
+- [x] Why (hardest ever version)
+- [ ] Anti-Hacker (Intentionally ignore some keystrokes, to aggravate your friends)
