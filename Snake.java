@@ -4,6 +4,34 @@ import java.awt.event.*;
 
 public class Snake extends JPanel {
 	public static void main(String[]args) {
+		String difficulty = "easy";
+		if (args.length > 0)
+			difficulty = args[0];
+
+		switch (difficulty.toLowerCase()) {
+			case "easy":
+			{
+				width = 15;
+				height = 18;
+				speed = 175;
+				break;
+			}	
+			case "medium":
+			{
+				width = 20;
+				height = 24;
+				speed = 100;
+				break;
+			}
+			case "hard":
+			{
+				width = 25;
+				height = 30;
+				speed = 60;
+				break;
+			}		
+		}
+
 		JFrame frame = new JFrame("Snake Game");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -15,7 +43,8 @@ public class Snake extends JPanel {
 		frame.setVisible(true);
 	}
 	
-	int width, height;
+	static int width, height;
+	static int speed;
 	
 	/*
 	 * board[i][j] will have an int 0 < z < width*height. where the head of the snake will set the contents of its location to its length.
@@ -36,9 +65,7 @@ public class Snake extends JPanel {
 
 	public Snake() {
 		// board width and height in cell #
-		width = 15;
-		height = 18;
-			
+	
 		size = new Dimension(2*border + cell*width, 2*border + cell*height);
 
 		board = new int[width][height];
@@ -55,7 +82,7 @@ public class Snake extends JPanel {
 		
 		reset();	
 
-		new Timer(100, new ActionListener() {
+		new Timer(speed, new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				switch (snake_direction) {
 					case NORTH:
