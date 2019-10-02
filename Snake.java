@@ -29,7 +29,14 @@ public class Snake extends JPanel {
 				height = 30;
 				speed = 60;
 				break;
-			}		
+			}
+			case "why":
+			{
+				width = 30;
+				height = 36;
+				speed = 40;
+				break;
+			}
 		}
 
 		JFrame frame = new JFrame("Snake Game");
