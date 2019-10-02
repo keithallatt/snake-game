@@ -30,7 +30,9 @@ public class Snake extends JPanel {
 	
 	final Dimension size;
 	
-	int snake_x, snake_y, snake_direction, apple_x, apple_y;
+	final int NORTH = 1, EAST = 2, SOUTH = 3, WEST = 4;
+
+	int snake_x, snake_y, snake_direction, snake_length, apple_x, apple_y;
 
 	public Snake() {
 		// board width and height in cell #
@@ -43,12 +45,61 @@ public class Snake extends JPanel {
 
 		setPreferredSize(size);
 		setVisible(true);
+
+		addKeyListener(new Key());
+
+		setFocusable(true);
+		requestFocus();
+
 		
 		
+		reset();	
 
 		new Timer(100, new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				switch (snake_direction) {
+					case NORTH:
+					{
+						snake_y -= 1;
+						break;
+					} 
+					case EAST:
+					{
+						snake_x += 1;
+						break;
+					} 
+					case SOUTH:
+					{
+						snake_y += 1;
+						break;
+					} 
+					case WEST:
+					{
+						snake_x -= 1;
+						break;
+					} 
+				}		
 				
+				if (snake_x == apple_x && snake_y == apple_y) {
+					do {
+						apple_x = (int)(Math.random()*width);
+						apple_y = (int)(Math.random()*height);
+					} while (board[apple_x][apple_y] != 0);
+					snake_length += 1;
+				} else
+					for (int i = 0; i < width; i++)
+						for (int j = 0; j < height; j++)
+							if (board[i][j] > 0)
+								board[i][j] -= 1;
+
+				try {
+					if (board[snake_x][snake_y] > 0)
+						reset();		
+					board[snake_x][snake_y] = snake_length;
+				} catch (ArrayIndexOutOfBoundsException aioobe) {
+					reset();
+				}
+	
 				repaint();
 			}			
 		}).start();
@@ -63,12 +114,60 @@ public class Snake extends JPanel {
 		page.setColor(Color.WHITE);
 		for (int i = 0; i < width; i++)
 			for (int j = 0; j < height; j++) {
-				page.drawRect(
-					border + i*cell,
-					border + j*cell,
-					cell,
-					cell
+				if (board[i][j] > 0)
+					page.fillRect(
+						border + i*cell,
+						border + j*cell,
+						cell,
+						cell
+					);
+				else if (apple_x == i && apple_y == j)
+					page.fillOval(
+						border + i*cell,
+						border + j*cell,
+						cell,
+						cell
 					);
 			}
+	}
+
+	public void reset() {
+		for (int i = 0; i < width; i++)
+			for (int j = 0; j < height; j++)
+				board[i][j] = 0;
+
+		snake_x = width / 2;
+		snake_y = height / 2;
+		snake_length = 3;
+		
+		snake_direction = NORTH;		
+		
+		board[snake_x][snake_y + 0] = 3;
+		board[snake_x][snake_y + 1] = 2;
+		board[snake_x][snake_y + 2] = 1;
+
+		do {
+			apple_x = (int)(Math.random()*width);
+			apple_y = (int)(Math.random()*height);
+		} while (board[apple_x][apple_y] != 0);
+				
+	}
+
+	class Key implements KeyListener {
+		public void keyPressed(KeyEvent e) {
+			if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+				snake_direction = WEST;
+			} else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+				snake_direction = EAST;
+			} else if (e.getKeyCode() == KeyEvent.VK_UP) {
+				snake_direction = NORTH;
+			} else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+				snake_direction = SOUTH;
+			}
+		}
+
+		public void keyReleased(KeyEvent e) {}
+
+		public void keyTyped(KeyEvent e) {}
 	}
 }
