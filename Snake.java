@@ -11,29 +11,29 @@ public class Snake extends JPanel {
 		switch (difficulty.toLowerCase()) {
 			case "easy":
 			{
-				width = 15;
-				height = 18;
+				width = 18;
+				height = 15;
 				speed = 175;
 				break;
 			}	
 			case "medium":
 			{
-				width = 20;
-				height = 24;
+				width = 24;
+				height = 20;
 				speed = 100;
 				break;
 			}
 			case "hard":
 			{
-				width = 25;
-				height = 30;
+				width = 30;
+				height = 25;
 				speed = 60;
 				break;
 			}
 			case "why":
 			{
-				width = 30;
-				height = 36;
+				width = 36;
+				height = 30;
 				speed = 40;
 				break;
 			}
