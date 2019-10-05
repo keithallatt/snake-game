@@ -8,6 +8,9 @@ public class Snake extends JPanel {
 		if (args.length > 0)
 			difficulty = args[0];
 
+		ai = false;
+		anti = false;
+
 		switch (difficulty.toLowerCase()) {
 			case "easy":
 			{
@@ -37,6 +40,22 @@ public class Snake extends JPanel {
 				speed = 40;
 				break;
 			}
+			case "ai":
+			{
+				width = 30;
+				height = 25;
+				speed = 10;
+				ai = true;
+				break;
+			}
+			case "anti":
+			{
+				width = 30;
+				height = 25;
+				speed = 60;
+				anti = true;
+				break;
+			}
 		}
 
 		JFrame frame = new JFrame("Snake Game");
@@ -49,6 +68,8 @@ public class Snake extends JPanel {
 		frame.pack();
 		frame.setVisible(true);
 	}
+
+	static boolean ai, anti;
 	
 	static int width, height;
 	static int speed;
@@ -59,16 +80,16 @@ public class Snake extends JPanel {
 	 * which is already non zero, then the snake collided with itself. therefore the board, the snake head and next apple are the only info
 	 * needed. :)
 	 */
-	int[][] board;
+	static int[][] board;
 	
-	final int border = 5;
-	final int cell = 33;
+	static final int border = 5;
+	static final int cell = 33;
 	
 	final Dimension size;
 	
-	final int NORTH = 1, EAST = 2, SOUTH = 3, WEST = 4;
+	final static int NORTH = 1, EAST = 2, SOUTH = 3, WEST = 4;
 
-	int snake_x, snake_y, snake_direction, snake_length, apple_x, apple_y;
+	static int snake_x, snake_y, snake_direction, snake_length, apple_x, apple_y;
 
 	public Snake() {
 		// board width and height in cell #
@@ -91,6 +112,9 @@ public class Snake extends JPanel {
 
 		new Timer(speed, new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				if (ai)
+					snake_direction = SnakeAI.direction(width, height, snake_x, snake_y);
+
 				switch (snake_direction) {
 					case NORTH:
 					{
@@ -115,11 +139,21 @@ public class Snake extends JPanel {
 				}		
 				
 				if (snake_x == apple_x && snake_y == apple_y) {
+					boolean place = false;
+					for (int i = 0; i < width; i++)
+						for (int j = 0; j < height; j++) {
+							if (board[i][j] == 0) {
+								place = true;
+								break;
+							}
+						if (place) break;
+					}
 					do {
 						apple_x = (int)(Math.random()*width);
 						apple_y = (int)(Math.random()*height);
 					} while (board[apple_x][apple_y] != 0);
 					snake_length += 1;
+					
 				} else
 					for (int i = 0; i < width; i++)
 						for (int j = 0; j < height; j++)
@@ -173,12 +207,15 @@ public class Snake extends JPanel {
 		snake_x = width / 2;
 		snake_y = height / 2;
 		snake_length = 3;
+
+		// temporary
+		snake_length = 30;
 		
 		snake_direction = NORTH;		
 		
-		board[snake_x][snake_y + 0] = 3;
-		board[snake_x][snake_y + 1] = 2;
-		board[snake_x][snake_y + 2] = 1;
+		board[snake_x][snake_y + 0] = snake_length;
+		//board[snake_x][snake_y + 1] = 2;
+		//board[snake_x][snake_y + 2] = 1;
 
 		do {
 			apple_x = (int)(Math.random()*width);
@@ -187,8 +224,58 @@ public class Snake extends JPanel {
 				
 	}
 
+	static class SnakeAI {
+		static int direction(int width, int height, int xpos, int ypos) {
+			switch ((width % 2) * (1 + (height % 2))) {
+				case 0: {
+					// width even
+					if (ypos == 0) {
+						// top row, alternate EAST, SOUTH
+						// make dips once length hits a threshold
+						int n = (int)(Math.ceil((float)(snake_length - 2*width - 2*height) / (float)(2 * height - 2)));
+						if (xpos >= width - 2*n - 2 || xpos <= 2*n + 2)
+							 return new int[] {EAST, SOUTH}[xpos % 2];
+												
+						if (xpos % 2 == 0) return EAST;
+						if (xpos == width - 1) return SOUTH;
+						
+						if (apple_x == xpos || apple_x == xpos+1)
+							if (1 <= apple_y && apple_y <= height - 2)
+								return SOUTH;
+						return EAST;
+						
+					} else if (ypos == height - 2) {
+						// second last row
+						if (xpos == 0) return NORTH;
+						if (xpos == width - 1) return SOUTH;
+						return new int[] {NORTH, EAST}[xpos % 2];
+					} else if (ypos == height - 1) {
+						// bottom row
+						if (xpos == 0) return NORTH;
+						return WEST;
+					} else {
+						if (snake_direction == new int[]{SOUTH, NORTH}[xpos % 2]) return EAST;
+
+						return new int[] {NORTH, SOUTH}[xpos % 2];
+					}
+				}
+				case 1: {}
+				case 2: {}
+				default: {
+					return NORTH;
+				}
+			}
+		}
+	}
+
 	class Key implements KeyListener {
 		public void keyPressed(KeyEvent e) {
+			if (anti) // make someone upset
+				if (Math.random() < 0.1)
+					return;
+			if (ai)  // no need for key commands
+				return;
+
 			if (e.getKeyCode() == KeyEvent.VK_LEFT) {
 				snake_direction = WEST;
 			} else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
